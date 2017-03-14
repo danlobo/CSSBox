@@ -20,6 +20,7 @@
 package org.fit.cssbox.io;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 
 import org.apache.xerces.parsers.DOMParser;
@@ -61,7 +62,12 @@ public class DefaultDOMSource extends DOMSource
         parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
         if (charset != null)
             parser.setProperty("http://cyberneko.org/html/properties/default-encoding", charset);
-        parser.parse(new org.xml.sax.InputSource(getDocumentSource().getInputStreamFor(url)));
+        InputStream is = getDocumentSource().getInputStreamFor(url);
+        try {
+            parser.parse(new org.xml.sax.InputSource(is));
+        } finally {
+            is.close();
+        }
         return parser.getDocument();
     }
 

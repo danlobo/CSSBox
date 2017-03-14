@@ -201,6 +201,7 @@ public abstract class ContentImage extends ReplacedContent implements ImageObser
         } catch (Exception e) {
             log.error("Image decoding error: " + e.getMessage());
         } finally {
+            urlStream.close();
             imgsrc.close();
         }
 
