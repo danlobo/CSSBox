@@ -23,13 +23,15 @@ import org.fit.cssbox.css.CSSNorm;
 import org.fit.cssbox.css.DOMAnalyzer;
 import org.fit.cssbox.io.DOMSource;
 import org.fit.cssbox.io.DefaultDOMSource;
-import org.fit.cssbox.io.DefaultDocumentSource;
-import org.fit.cssbox.io.DocumentSource;
+import org.fit.cssbox.io.DefaultDocumentDataSource;
+import org.fit.cssbox.io.DocumentDataSource;
 import org.fit.cssbox.layout.Box;
 import org.fit.cssbox.layout.BrowserCanvas;
 import org.fit.cssbox.layout.ElementBox;
 import org.fit.cssbox.layout.TextBox;
 import org.w3c.dom.Document;
+
+import java.net.URL;
 
 
 /**
@@ -73,22 +75,23 @@ public class TextBoxes
         }
         
         try {
+            URL url = new URL(args[0]);
             //Open the network connection 
-            DocumentSource docSource = new DefaultDocumentSource(args[0]);
+            DocumentDataSource docSource = new DefaultDocumentDataSource();
             
             //Parse the input document
             DOMSource parser = new DefaultDOMSource(docSource);
-            Document doc = parser.parse();
+            Document doc = parser.parse(url);
             
             //Create the CSS analyzer
-            DOMAnalyzer da = new DOMAnalyzer(doc, docSource.getURL());
+            DOMAnalyzer da = new DOMAnalyzer(doc, url);
             da.attributesToStyles(); //convert the HTML presentation attributes to inline styles
             da.addStyleSheet(null, CSSNorm.stdStyleSheet(), DOMAnalyzer.Origin.AGENT); //use the standard style sheet
             da.addStyleSheet(null, CSSNorm.userStyleSheet(), DOMAnalyzer.Origin.AGENT); //use the additional style sheet
             da.getStyleSheets(); //load the author style sheets
             
             //Create the browser canvas
-            BrowserCanvas browser = new BrowserCanvas(da.getRoot(), da, docSource.getURL());
+            BrowserCanvas browser = new BrowserCanvas(da.getRoot(), da, url);
             //Disable the image loading
             browser.getConfig().setLoadImages(false);
             browser.getConfig().setLoadBackgroundImages(false);

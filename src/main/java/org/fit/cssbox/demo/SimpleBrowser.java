@@ -27,8 +27,8 @@ import org.fit.cssbox.css.CSSNorm;
 import org.fit.cssbox.css.DOMAnalyzer;
 import org.fit.cssbox.io.DOMSource;
 import org.fit.cssbox.io.DefaultDOMSource;
-import org.fit.cssbox.io.DefaultDocumentSource;
-import org.fit.cssbox.io.DocumentSource;
+import org.fit.cssbox.io.DefaultDocumentDataSource;
+import org.fit.cssbox.io.DocumentDataSource;
 import org.fit.cssbox.layout.BrowserCanvas;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -128,15 +128,16 @@ public class SimpleBrowser extends javax.swing.JFrame
     	}
     	
         try {
-            //Open the network connection 
-            DocumentSource docSource = new DefaultDocumentSource(args[0]);
+            //Open the network connection
+            URL url = new URL(args[0]);
+            DocumentDataSource docSource = new DefaultDocumentDataSource();
             
             //Parse the input document
             DOMSource parser = new DefaultDOMSource(docSource);
-            Document doc = parser.parse();
+            Document doc = parser.parse(url);
             
             //Create the CSS analyzer
-            DOMAnalyzer da = new DOMAnalyzer(doc, docSource.getURL());
+            DOMAnalyzer da = new DOMAnalyzer(doc, url);
             da.attributesToStyles(); //convert the HTML presentation attributes to inline styles
             da.addStyleSheet(null, CSSNorm.stdStyleSheet(), DOMAnalyzer.Origin.AGENT); //use the standard style sheet
             da.addStyleSheet(null, CSSNorm.userStyleSheet(), DOMAnalyzer.Origin.AGENT); //use the additional style sheet
@@ -144,7 +145,7 @@ public class SimpleBrowser extends javax.swing.JFrame
             da.getStyleSheets(); //load the author style sheets
             
             //Display the result
-            SimpleBrowser test = new SimpleBrowser(da.getRoot(), docSource.getURL(), da);
+            SimpleBrowser test = new SimpleBrowser(da.getRoot(), url, da);
             test.setSize(1275, 750);
             test.setVisible(true);
             

@@ -20,6 +20,7 @@
 package org.fit.cssbox.io;
 
 import java.io.IOException;
+import java.net.URL;
 
 import org.apache.xerces.parsers.DOMParser;
 import org.cyberneko.html.HTMLConfiguration;
@@ -36,13 +37,13 @@ public class DefaultDOMSource extends DOMSource
 {
     static boolean neko_fixed = false;
 
-    public DefaultDOMSource(DocumentSource src)
+    public DefaultDOMSource(DocumentDataSource src)
     {
         super(src);
     }
 
     @Override
-    public Document parse() throws SAXException, IOException
+    public Document parse(URL url) throws SAXException, IOException
     {
         //temporay NekoHTML fix until nekohtml gets fixed
         if (!neko_fixed)
@@ -60,7 +61,7 @@ public class DefaultDOMSource extends DOMSource
         parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
         if (charset != null)
             parser.setProperty("http://cyberneko.org/html/properties/default-encoding", charset);
-        parser.parse(new org.xml.sax.InputSource(getDocumentSource().getInputStream()));
+        parser.parse(new org.xml.sax.InputSource(getDocumentSource().getInputStreamFor(url)));
         return parser.getDocument();
     }
 

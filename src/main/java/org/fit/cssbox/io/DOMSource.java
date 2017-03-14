@@ -21,6 +21,7 @@
 package org.fit.cssbox.io;
 
 import java.io.IOException;
+import java.net.URL;
 
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -32,16 +33,17 @@ import org.xml.sax.SAXException;
  */
 public abstract class DOMSource
 {
-    protected DocumentSource src;
+    protected DocumentDataSource src;
     protected String charset;
 
-    public DOMSource(DocumentSource src)
+    public DOMSource(DocumentDataSource src)
     {
         this.src = src;
-        setContentType(src.getContentType());
+//TODO see where it fits
+//        setContentType(src.getContentType());
     }
 
-    public DocumentSource getDocumentSource()
+    public DocumentDataSource getDocumentSource()
     {
         return src;
     }
@@ -71,6 +73,6 @@ public abstract class DOMSource
         }
     }
 
-    abstract public Document parse() throws SAXException, IOException;
+    abstract public Document parse(URL url) throws SAXException, IOException;
     
 }

@@ -29,47 +29,22 @@ import java.net.URL;
  * 
  * @author burgetr
  */
-public abstract class DocumentSource implements java.io.Closeable
+public abstract class DocumentDataSource implements java.io.Closeable
 {
     
     /**
      * Creates a new document source from an URL.
-     * @param url the document URL
-     * @throws IOException
      */
-    public DocumentSource(URL url) throws IOException
+    public DocumentDataSource()
     {
     }
-    
-    /**
-     * Creates a new document source based on a string representation of the URL.
-     * @param urlstring the URL string
-     * @throws IOException
-     */
-    public DocumentSource(URL base, String urlstring) throws IOException
-    {
-    }
-    
-    /**
-     * Obtains the final URL of the obtained document. This URL may be different
-     * from the URL used for DocumentSource construction, e.g. when some HTTP redirect
-     * occurs.
-     * @return the document URL.
-     */
-    abstract public URL getURL();
-    
-    /**
-     * Obtains the MIME content type of the target document.
-     * @return a MIME string.
-     */
-    abstract public String getContentType();
-    
+
     /**
      * Obtains the input stream for reading the referenced document.
      * @return The input stream.
      * @throws IOException
      */
-    abstract public InputStream getInputStream() throws IOException;
+    abstract public InputStream getInputStreamFor(URL url) throws IOException;
 
     /**
      * Closes the document source.

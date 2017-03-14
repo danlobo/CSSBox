@@ -32,7 +32,7 @@ import cz.vutbr.web.css.NodeData;
 import org.fit.cssbox.css.HTMLNorm;
 import org.fit.cssbox.io.DOMSource;
 import org.fit.cssbox.io.DefaultDOMSource;
-import org.fit.cssbox.io.DocumentSource;
+import org.fit.cssbox.io.DocumentDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -168,7 +168,8 @@ public class HTMLBoxFactory
             
             if (!dataurl.trim().isEmpty())
             {
-                final DocumentSource src = factory.getConfig().createDocumentSource(base, dataurl);
+                URL url = new URL(base, dataurl);
+                final DocumentDataSource src = factory.getConfig().getDocumentDataSource();
                 if (src != null) //data url successfully decoded
                 {
                     if (mime.isEmpty())
@@ -185,11 +186,11 @@ public class HTMLBoxFactory
                     }
                     else if (mime.equals("text/html"))
                     {
-                        log.info("Parsing: " + src.getURL()); 
+                        log.info("Parsing: " + url);
                         DOMSource parser = new DefaultDOMSource(src);
-                        Document doc = parser.parse();
+                        Document doc = parser.parse(url);
                         String encoding = parser.getCharset();
-                        content = new ReplacedText(rbox, doc, src.getURL(), encoding);
+                        content = new ReplacedText(rbox, doc, url, encoding);
                     }
                     rbox.setContentObj(content);
                 }

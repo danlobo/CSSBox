@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.net.URL;
 
 import javax.imageio.ImageIO;
 
@@ -33,8 +34,8 @@ import org.fit.cssbox.css.CSSNorm;
 import org.fit.cssbox.css.DOMAnalyzer;
 import org.fit.cssbox.io.DOMSource;
 import org.fit.cssbox.io.DefaultDOMSource;
-import org.fit.cssbox.io.DefaultDocumentSource;
-import org.fit.cssbox.io.DocumentSource;
+import org.fit.cssbox.io.DefaultDocumentDataSource;
+import org.fit.cssbox.io.DocumentDataSource;
 import org.fit.cssbox.layout.BrowserCanvas;
 import org.fit.cssbox.layout.BrowserConfig;
 import org.fit.cssbox.layout.Viewport;
@@ -98,13 +99,14 @@ public class ImageRenderer
             !urlstring.startsWith("ftp:") &&
             !urlstring.startsWith("file:"))
                 urlstring = "http://" + urlstring;
-        
+
+        URL url = new URL(urlstring);
         //Open the network connection 
-        DocumentSource docSource = new DefaultDocumentSource(urlstring);
+        DocumentDataSource docSource = new DefaultDocumentDataSource();
         
         //Parse the input document
         DOMSource parser = new DefaultDOMSource(docSource);
-        Document doc = parser.parse();
+        Document doc = parser.parse(url);
         
         //create the media specification
         MediaSpec media = new MediaSpec(mediaType);
@@ -112,7 +114,7 @@ public class ImageRenderer
         media.setDeviceDimensions(windowSize.width, windowSize.height);
 
         //Create the CSS analyzer
-        DOMAnalyzer da = new DOMAnalyzer(doc, docSource.getURL());
+        DOMAnalyzer da = new DOMAnalyzer(doc, url);
         da.setMediaSpec(media);
         da.attributesToStyles(); //convert the HTML presentation attributes to inline styles
         da.addStyleSheet(null, CSSNorm.stdStyleSheet(), DOMAnalyzer.Origin.AGENT); //use the standard style sheet
@@ -120,7 +122,7 @@ public class ImageRenderer
         da.addStyleSheet(null, CSSNorm.formsStyleSheet(), DOMAnalyzer.Origin.AGENT); //render form fields using css
         da.getStyleSheets(); //load the author style sheets
         
-        BrowserCanvas contentCanvas = new BrowserCanvas(da.getRoot(), da, docSource.getURL());
+        BrowserCanvas contentCanvas = new BrowserCanvas(da.getRoot(), da, url);
         contentCanvas.setAutoMediaUpdate(false); //we have a correct media specification, do not update
         contentCanvas.getConfig().setClipViewport(cropWindow);
         contentCanvas.getConfig().setLoadImages(loadImages);

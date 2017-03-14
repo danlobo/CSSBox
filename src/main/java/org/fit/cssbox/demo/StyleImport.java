@@ -23,14 +23,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.URL;
 
 import org.fit.cssbox.css.DOMAnalyzer;
 import org.fit.cssbox.css.NormalOutput;
 import org.fit.cssbox.css.Output;
 import org.fit.cssbox.io.DOMSource;
 import org.fit.cssbox.io.DefaultDOMSource;
-import org.fit.cssbox.io.DefaultDocumentSource;
-import org.fit.cssbox.io.DocumentSource;
+import org.fit.cssbox.io.DefaultDocumentDataSource;
+import org.fit.cssbox.io.DocumentDataSource;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -45,15 +46,16 @@ public class StyleImport
 
     public StyleImport(String urlstring) throws IOException, SAXException
     {
+        URL url = new URL(urlstring);
         //Open the network connection 
-        DocumentSource docSource = new DefaultDocumentSource(urlstring);
+        DocumentDataSource docSource = new DefaultDocumentDataSource();
         
         //Parse the input document
         DOMSource parser = new DefaultDOMSource(docSource);
-        doc = parser.parse();
+        doc = parser.parse(url);
         
         //Create the CSS analyzer
-        DOMAnalyzer da = new DOMAnalyzer(doc, docSource.getURL());
+        DOMAnalyzer da = new DOMAnalyzer(doc, url);
         da.getStyleSheets(); //load the author style sheets
         da.localizeStyles(); //put the style sheets into the document header
         

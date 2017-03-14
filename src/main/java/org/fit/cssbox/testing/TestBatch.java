@@ -39,7 +39,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.fit.cssbox.io.DefaultDOMSource;
-import org.fit.cssbox.io.DefaultDocumentSource;
+import org.fit.cssbox.io.DefaultDocumentDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -117,9 +117,9 @@ public class TestBatch
         try
         {
             URL tocURL = new URL(testURL, "reftest-toc.htm");
-            DefaultDocumentSource docSource = new DefaultDocumentSource(tocURL.toString());
+            DefaultDocumentDataSource docSource = new DefaultDocumentDataSource();
             DefaultDOMSource parser = new DefaultDOMSource(docSource);
-            Document doc = parser.parse();
+            Document doc = parser.parse(tocURL);
             
             NodeList tables = doc.getElementsByTagName("table");
             if (tables.getLength() == 1)

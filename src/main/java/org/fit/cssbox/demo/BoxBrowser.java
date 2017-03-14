@@ -31,8 +31,8 @@ import org.fit.cssbox.css.CSSUnits;
 import org.fit.cssbox.css.DOMAnalyzer;
 import org.fit.cssbox.io.DOMSource;
 import org.fit.cssbox.io.DefaultDOMSource;
-import org.fit.cssbox.io.DefaultDocumentSource;
-import org.fit.cssbox.io.DocumentSource;
+import org.fit.cssbox.io.DefaultDocumentDataSource;
+import org.fit.cssbox.io.DocumentDataSource;
 import org.fit.cssbox.layout.BlockBox;
 import org.fit.cssbox.layout.BrowserCanvas;
 import org.fit.cssbox.layout.Box;
@@ -140,18 +140,19 @@ public class BoxBrowser
                 !urlstring.startsWith("ftp:") &&
                 !urlstring.startsWith("file:"))
                     urlstring = "http://" + urlstring;
-            
-            DocumentSource docSource = new DefaultDocumentSource(urlstring);
-            urlText.setText(docSource.getURL().toString());
+
+            URL url = new URL(urlstring);
+            DocumentDataSource docSource = new DefaultDocumentDataSource();
+            urlText.setText(url.toString());
             
             DOMSource parser = new DefaultDOMSource(docSource);
-            Document doc = parser.parse();
+            Document doc = parser.parse(url);
             String encoding = parser.getCharset();
             
             MediaSpec media = new MediaSpec("screen");
             updateCurrentMedia(media);
             
-            DOMAnalyzer da = new DOMAnalyzer(doc, docSource.getURL());
+            DOMAnalyzer da = new DOMAnalyzer(doc, url);
             if (encoding == null)
                 encoding = da.getCharacterEncoding();
             da.setDefaultEncoding(encoding);
@@ -162,7 +163,7 @@ public class BoxBrowser
             da.addStyleSheet(null, CSSNorm.formsStyleSheet(), DOMAnalyzer.Origin.AGENT);
             da.getStyleSheets();
             
-            contentCanvas = new BrowserCanvas(da.getRoot(), da, docSource.getURL());
+            contentCanvas = new BrowserCanvas(da.getRoot(), da, url);
             ((BrowserCanvas) contentCanvas).setConfig(config);
             ((BrowserCanvas) contentCanvas).createLayout(contentScroll.getSize(), contentScroll.getVisibleRect());
             
@@ -191,7 +192,7 @@ public class BoxBrowser
             domTree.setModel(new DefaultTreeModel(domRoot));
             
             //=============================================================================
-            return docSource.getURL();
+            return url;
             
         } catch (Exception e) {
             System.err.println("*** Error: "+e.getMessage());

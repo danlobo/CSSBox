@@ -35,8 +35,8 @@ import org.fit.cssbox.css.CSSNorm;
 import org.fit.cssbox.css.DOMAnalyzer;
 import org.fit.cssbox.io.DOMSource;
 import org.fit.cssbox.io.DefaultDOMSource;
-import org.fit.cssbox.io.DefaultDocumentSource;
-import org.fit.cssbox.io.DocumentSource;
+import org.fit.cssbox.io.DefaultDocumentDataSource;
+import org.fit.cssbox.io.DocumentDataSource;
 import org.fit.cssbox.layout.BrowserCanvas;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,7 +61,7 @@ public class ReferenceTestCase implements Callable<Float>
     private boolean saveImages;
     private TestBatch batch;
     
-    private DocumentSource docSource;
+    private DocumentDataSource docSource;
     private DOMSource parser;
     
     //default rendering config
@@ -125,15 +125,15 @@ public class ReferenceTestCase implements Callable<Float>
     public float performTest() throws IOException, SAXException
     {
         log.debug("Loading test {}", urlstring);
-        Document doc = loadDocument(urlstring);
-        URL srcurl = docSource.getURL();
-        URL refurl = extractReference(doc, docSource.getURL());
-        BufferedImage testImg = renderDocument(doc);
+        URL srcurl = new URL(urlstring);
+        Document doc = loadDocument(srcurl);
+        URL refurl = extractReference(doc, srcurl);
+        BufferedImage testImg = renderDocument(doc, srcurl);
         closeDocument();
         
         log.debug("  -- reference result {}", refurl);
-        Document refDoc = loadDocument(refurl.toString());
-        BufferedImage refImg = renderDocument(refDoc);
+        Document refDoc = loadDocument(refurl);
+        BufferedImage refImg = renderDocument(refDoc, refurl);
         closeDocument();
         
         ImageComparator ic = new ImageComparator(testImg, refImg);
@@ -154,11 +154,11 @@ public class ReferenceTestCase implements Callable<Float>
         return ic.getErrorRate();
     }
     
-    private Document loadDocument(String urlstring) throws IOException, SAXException
+    private Document loadDocument(URL url) throws IOException, SAXException
     {
-        docSource = new DefaultDocumentSource(urlstring);
+        docSource = new DefaultDocumentDataSource();
         parser = new DefaultDOMSource(docSource);
-        Document doc = parser.parse();
+        Document doc = parser.parse(url);
         return doc;
     }
     
@@ -168,7 +168,7 @@ public class ReferenceTestCase implements Callable<Float>
             docSource.close();
     }
     
-    private BufferedImage renderDocument(Document doc)
+    private BufferedImage renderDocument(Document doc, URL url)
     {
         //create the media specification
         MediaSpec media = new MediaSpec(mediaType);
@@ -176,7 +176,7 @@ public class ReferenceTestCase implements Callable<Float>
         media.setDeviceDimensions(windowSize.width, windowSize.height);
 
         //Create the CSS analyzer
-        DOMAnalyzer da = new DOMAnalyzer(doc, docSource.getURL());
+        DOMAnalyzer da = new DOMAnalyzer(doc, url);
         da.setMediaSpec(media);
         da.attributesToStyles(); //convert the HTML presentation attributes to inline styles
         da.addStyleSheet(null, CSSNorm.stdStyleSheet(), DOMAnalyzer.Origin.AGENT); //use the standard style sheet
@@ -184,7 +184,7 @@ public class ReferenceTestCase implements Callable<Float>
         da.addStyleSheet(null, CSSNorm.formsStyleSheet(), DOMAnalyzer.Origin.AGENT); //render form fields using css
         da.getStyleSheets(); //load the author style sheets
         
-        BrowserCanvas contentCanvas = new BrowserCanvas(da.getRoot(), da, docSource.getURL());
+        BrowserCanvas contentCanvas = new BrowserCanvas(da.getRoot(), da, url);
         contentCanvas.setAutoMediaUpdate(false); //we have a correct media specification, do not update
         contentCanvas.getConfig().setClipViewport(cropWindow);
         contentCanvas.getConfig().setLoadImages(loadImages);

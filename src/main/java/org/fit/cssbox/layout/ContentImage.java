@@ -36,7 +36,7 @@ import javax.imageio.ImageReader;
 import javax.imageio.event.IIOReadUpdateListener;
 import javax.imageio.stream.ImageInputStream;
 
-import org.fit.cssbox.io.DocumentSource;
+import org.fit.cssbox.io.DocumentDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,8 +172,8 @@ public abstract class ContentImage extends ReplacedContent implements ImageObser
     private Image loadImageFromSource(URL url) throws IOException
     {
         Image image = null;
-        DocumentSource imgsrc = owner.getViewport().getConfig().createDocumentSource(url);
-        InputStream urlStream = imgsrc.getInputStream();
+        DocumentDataSource imgsrc = owner.getViewport().getConfig().getDocumentDataSource();
+        InputStream urlStream = imgsrc.getInputStreamFor(url);
         ImageInputStream imageInputStream = ImageIO.createImageInputStream(urlStream);
         try
         {

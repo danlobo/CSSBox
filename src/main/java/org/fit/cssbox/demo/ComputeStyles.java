@@ -21,6 +21,7 @@ package org.fit.cssbox.demo;
 
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.net.URL;
 
 import org.fit.cssbox.css.CSSNorm;
 import org.fit.cssbox.css.DOMAnalyzer;
@@ -28,8 +29,8 @@ import org.fit.cssbox.css.NormalOutput;
 import org.fit.cssbox.css.Output;
 import org.fit.cssbox.io.DOMSource;
 import org.fit.cssbox.io.DefaultDOMSource;
-import org.fit.cssbox.io.DefaultDocumentSource;
-import org.fit.cssbox.io.DocumentSource;
+import org.fit.cssbox.io.DefaultDocumentDataSource;
+import org.fit.cssbox.io.DocumentDataSource;
 import org.w3c.dom.Document;
 
 
@@ -55,15 +56,16 @@ public class ComputeStyles
         }
         
         try {
+            URL url = new URL(args[0]);
             //Open the network connection 
-            DocumentSource docSource = new DefaultDocumentSource(args[0]);
+            DocumentDataSource docSource = new DefaultDocumentDataSource();
             
             //Parse the input document
             DOMSource parser = new DefaultDOMSource(docSource);
-            Document doc = parser.parse();
+            Document doc = parser.parse(url);
             
             //Create the CSS analyzer
-            DOMAnalyzer da = new DOMAnalyzer(doc, docSource.getURL());
+            DOMAnalyzer da = new DOMAnalyzer(doc, url);
             da.attributesToStyles(); //convert the HTML presentation attributes to inline styles
             da.addStyleSheet(null, CSSNorm.stdStyleSheet(), DOMAnalyzer.Origin.AGENT); //use the standard style sheet
             da.addStyleSheet(null, CSSNorm.userStyleSheet(), DOMAnalyzer.Origin.AGENT); //use the additional style sheet

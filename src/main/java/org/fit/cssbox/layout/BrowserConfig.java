@@ -22,14 +22,13 @@ package org.fit.cssbox.layout;
 import java.awt.Color;
 import java.awt.Font;
 import java.lang.reflect.Constructor;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.fit.cssbox.io.DOMSource;
 import org.fit.cssbox.io.DefaultDOMSource;
-import org.fit.cssbox.io.DefaultDocumentSource;
-import org.fit.cssbox.io.DocumentSource;
+import org.fit.cssbox.io.DefaultDocumentDataSource;
+import org.fit.cssbox.io.DocumentDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +63,7 @@ public class BrowserConfig
     private boolean clipViewport;
     
     /** Registered DocumentSource implementation */
-    private Class<? extends DocumentSource> documentSourceClass;
+    private DocumentDataSource documentDataSource;
     
     /** Registered DOMSource implementation */
     private Class<? extends DOMSource> domSourceClass;
@@ -84,7 +83,7 @@ public class BrowserConfig
         useHTML = true;
         replaceImagesWithAlt = false;
         clipViewport = false;
-        documentSourceClass = DefaultDocumentSource.class;
+        documentDataSource = new DefaultDocumentDataSource();
         domSourceClass = DefaultDOMSource.class;
         initDefaultFonts();
     }
@@ -199,57 +198,22 @@ public class BrowserConfig
 
     /**
      * Sets the class used by CSSBox for obtaining documents based on their URLs.
-     * @param documentSourceClass the new document source class
+     * @param documentDataSource the new document source class
      */
-    public void registerDocumentSource(Class<? extends DocumentSource> documentSourceClass)
+    public void setDocumentDataSource(DocumentDataSource documentDataSource)
     {
-        this.documentSourceClass = documentSourceClass;
+        this.documentDataSource = documentDataSource;
     }
     
     /**
      * Obtains the class used by CSSBox for obtaining documents based on their URLs.
      * @return the used class
      */
-    public Class<? extends DocumentSource> getDocumentSourceClass()
+    public DocumentDataSource getDocumentDataSource()
     {
-        return documentSourceClass;
+        return documentDataSource;
     }
-    
-    /**
-     * Creates a new instance of the {@link org.fit.cssbox.io.DocumentSource} class registered in the browser configuration.
-     * @param url the URL to be given to the document source.
-     * @return the document source.
-     */
-    public DocumentSource createDocumentSource(URL url)
-    {
-        try
-        {
-            Constructor<? extends DocumentSource> constr = getDocumentSourceClass().getConstructor(URL.class);
-            return constr.newInstance(url);
-        } catch (Exception e) {
-            log.warn("Could not create the DocumentSource instance: " + e.getMessage());
-            return null;
-        }
-    }
-    
-    /**
-     * Creates a new instance of the {@link org.fit.cssbox.io.DocumentSource} class registered in the browser configuration.
-     * @param base the base URL
-     * @param urlstring the URL suffix
-     * @return the document source.
-     */
-    public DocumentSource createDocumentSource(URL base, String urlstring)
-    {
-        try
-        {
-            Constructor<? extends DocumentSource> constr = getDocumentSourceClass().getConstructor(URL.class, String.class);
-            return constr.newInstance(base, urlstring);
-        } catch (Exception e) {
-            log.warn("Could not create the DocumentSource instance: " + e.getMessage());
-            return null;
-        }
-    }
-    
+
     /**
      * Sets the class used by CSSBox for the DOM tree from documents.
      * @param domSourceClass the new DOM source class
@@ -274,11 +238,11 @@ public class BrowserConfig
      * @param src the document source to be given to the DOM source.
      * @return the DOM source.
      */
-    public DOMSource createDOMSource(DocumentSource src)
+    public DOMSource createDOMSource(DocumentDataSource src)
     {
         try
         {
-            Constructor<? extends DOMSource> constr = getDOMSourceClass().getConstructor(DocumentSource.class);
+            Constructor<? extends DOMSource> constr = getDOMSourceClass().getConstructor(DocumentDataSource.class);
             return constr.newInstance(src);
         } catch (Exception e) {
             log.warn("BoxFactory: Warning: could not create the DOMSource instance: " + e.getMessage());
